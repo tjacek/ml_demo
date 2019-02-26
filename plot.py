@@ -69,7 +69,7 @@ def make_cat_helper(y):
     return color_helper
 
 
-show_features("msr_handcrafted",title="MSR - all handcrafted features")
-show_features("msr_handcrafted/I.txt",title="MSR - Statistical Temporal Features")
-show_features("mhad_handcrafted",title="MHAD - all handcrafted features")
-show_features("mhad_handcrafted/I.txt",title="MHAD - Statistical Temporal Features")
+show_features("msr",title="MSR - All Handcrafted Features")
+show_features("msr/conv_agum.txt",title="MSR -Deep Time Series Features")
+show_features("mhad",title="MHAD - All Handcrafted Features")
+show_features("mhad/conv_agum.txt",title="MHAD -Deep Time Series Features")
