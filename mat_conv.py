@@ -9,7 +9,7 @@ def read_mat(in_path,out_path):
         in_i=in_path+'/'+name_i
         out_i=out_path+'/'+name_i
         mat_i=scipy.io.loadmat(in_i)['d_iner']
-        np.savetxt(out_i,mat_i)
+        np.savetxt(out_i,mat_i,delimiter=",")
     #print( type( data[0]))
     #print(data[0].shape)
 
