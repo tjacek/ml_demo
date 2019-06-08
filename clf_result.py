@@ -1,6 +1,20 @@
 import os,os.path
 import itertools
 from collections import defaultdict
+from sets import Set
+
+def filter_csv(in_path,out_path,oblig_set):
+    oblig_set=Set(oblig_set)
+    def has_common(line_i):
+        feat_desc_i=line_i[0].strip().split("+")
+        feat_desc_i=Set(feat_desc_i)
+        return len(oblig_set.intersection(feat_desc_i))!=0
+    data_id,names,data=from_csv(in_path)
+    filtered=[line_i for line_i in data
+                if(has_common(line_i))]
+    f=open(out_path,'w')
+    f.write(to_csv(filtered,names))
+    f.close()
 
 def clf_result(in_path,out_path):
     name_dict={}
@@ -44,4 +58,6 @@ def make_dir(path):
     if(not os.path.isdir(path)):
         os.mkdir(path)
 
-clf_result("result","out")
+#clf_result("result","out")
+filter_csv("raw/inert_mhad_LR.csv",'result/inert_mhad_LR.csv',
+            oblig_set=['inert'])
