@@ -1,3 +1,5 @@
+import re
+
 def to_txt(ts_dict,out_path):
     lines=[make_line(name_i,data_i) 
             for name_i,data_i in ts_dict.items()]	
@@ -7,7 +9,7 @@ def to_txt(ts_dict,out_path):
     f.close()
 
 def make_line(name_i,data_i):
-    raw=name_i.split('_')
+    raw=re.findall('\d+',name_i)
     return "#".join([data_i,raw[0],raw[1],name_i])
 
 def from_txt(in_path):
@@ -22,5 +24,5 @@ def parse_line(line_i):
 
 
 
-ts_dict=from_txt('conv_person.txt')
-to_txt(ts_dict,'out')
+ts_dict=from_txt('nonlin.txt')
+to_txt(ts_dict,'nonlin')
