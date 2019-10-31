@@ -9,9 +9,17 @@ def show_confusion(in_path,labels=None):
     if(not labels):
         labels=range(dim[0])
     df_cm = pd.DataFrame(cf_matrix, labels,labels)
-    sn.set(font_scale=0.7)#for label size
-    sn.heatmap(df_cm, #xticklabels=,yticklabels=df_cm.columns,
-    	annot=True,annot_kws={"size": 4}, fmt='g')
+#    sn.set(font_scale=1.0)
+    sn.heatmap(df_cm,cmap="YlGnBu",#linewidths=0.5,
+    	annot=True,annot_kws={"size": 5}, fmt='g')
+
+    b, t = plt.ylim()
+    b += 0.5 
+    t -= 0.5 
+    plt.ylim(b, t)
+    if(all( type(i) == int for i in labels)):
+        plt.xlabel("predicted labels")
+        plt.ylabel("true labels")
     plt.yticks(rotation=0) 
     plt.xticks(rotation=90)
     plt.show()
@@ -27,5 +35,6 @@ cats_mhad=['right arm swipe to the left', 'right arm swipe to the right', 'right
  'tennis serve', 'two hand push', 'right hand knock on door', 'right hand catch an object', 'right hand pick up and throw', 'jogging in place', 
  'walking in place', 'sit to stand', 'stand to sit','forward lunge','squat']
 
-show_confusion("msr.csv",cats_msr)
-show_confusion("mhad.csv",cats_mhad)
+show_confusion("bagging/confusion_matrix/cf_msr.txt",None)
+show_confusion("bagging/confusion_matrix/cf_mhad.txt",None)
+show_confusion("bagging/confusion_matrix/cf_mhad_inert.txt",None)
