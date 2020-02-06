@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sn
 import matplotlib.pyplot as plt
 
-def show_confusion(in_path,labels=None):       	
+def show_confusion(in_path,labels=None,title=None):       	
     cf_matrix=np.genfromtxt(in_path,delimiter=',')
     dim=cf_matrix.shape
     if(not labels):
@@ -12,7 +12,8 @@ def show_confusion(in_path,labels=None):
 #    sn.set(font_scale=1.0)
     sn.heatmap(df_cm,cmap="YlGnBu",#linewidths=0.5,
     	annot=True,annot_kws={"size": 5}, fmt='g')
-
+    if(title):
+        plt.title(title)
     b, t = plt.ylim()
     b += 0.5 
     t -= 0.5 
@@ -35,6 +36,6 @@ cats_mhad=['right arm swipe to the left', 'right arm swipe to the right', 'right
  'tennis serve', 'two hand push', 'right hand knock on door', 'right hand catch an object', 'right hand pick up and throw', 'jogging in place', 
  'walking in place', 'sit to stand', 'stand to sit','forward lunge','squat']
 
-show_confusion("bagging/confusion_matrix/cf_msr.txt",None)
-show_confusion("bagging/confusion_matrix/cf_mhad.txt",None)
-show_confusion("bagging/confusion_matrix/cf_mhad_inert.txt",None)
+show_confusion("conf_dtw/cf_matrix/MHAD_dtw",None,"MHAD dtw feats")
+#show_confusion("bagging/confusion_matrix/cf_mhad.txt",None)
+#show_confusion("bagging/confusion_matrix/cf_mhad_inert.txt",None)
