@@ -1,10 +1,13 @@
 import numpy as np
-import os
+import os,os.path
 import pandas as pd
 import seaborn as sn
 import matplotlib.pyplot as plt
 
 def show_all(in_path,out_path):
+    if(not os.path.isdir(in_path)):
+        title=in_path.split("/")[-1]
+        show_confusion(in_path,title=title,out_path=out_path)
     all_paths=os.listdir(in_path)
     for path_i in all_paths:
         in_i=in_path+'/'+path_i
