@@ -2,11 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def show_plot(n=30):
-    fig = plt.figure()
-    ax = fig.add_axes([0,0,1,1])
-    x = range(n)
-    y = get_dist(n)
-    ax.bar(x,y)
+    names=range(n)
+    values=get_dist(n)
+    plt.bar(names, values)
+    plt.xlabel('frames')
+    plt.ylabel('probability')    
     plt.show()
 
 def get_dist(n):
