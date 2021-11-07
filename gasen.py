@@ -1,3 +1,4 @@
+import numpy as np
 import random
 
 class MockEnsemble(object):
@@ -21,10 +22,24 @@ class MockClf(object):
         if(self.wrong==i):
         	threshold=0.1
         else:
-            threshold=0.9	
+            threshold=0.7	
         if(random.uniform(0,1)<threshold):
             return i
         return random.randrange(self.n_cats)
 
+def corl_error(y_true,preds):
+    c=[[ np.dot(error(pred_i,y_true),error(pred_j,y_true))
+            for pred_i in preds]
+                for pred_j in preds]
+    c=np.array(c)
+    norm=(1/float(len(y_true)))
+    return norm*c
+
+def error( y_pred,y_true):
+	return np.array([ int(pred_i==true_i) 
+	        for pred_i,true_i in zip(y_pred,y_true)])
+
 ens=MockEnsemble()
-print(ens(30)[1][0])
+y_true,preds= ens(1000)
+C=corl_error(y_true,preds)
+print(C)
