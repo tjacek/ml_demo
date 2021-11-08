@@ -1,6 +1,8 @@
 import numpy as np
 import random
 from scipy.optimize import differential_evolution
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
 
 class MockEnsemble(object):
     def __init__(self,n_clfs=3,n_cats=3):
@@ -15,7 +17,7 @@ class MockEnsemble(object):
         return y_true,list(zip(*y_pred))
 
 class WrongCat(object):
-    def __init__(self,wrong,n_cats=5,threshold=0.3):
+    def __init__(self,wrong,n_cats=5,threshold=0.5):
         self.wrong=wrong
         self.n_cats=n_cats
         self.threshold=threshold
@@ -26,7 +28,7 @@ class WrongCat(object):
         return i
 
 class RightCat(object):
-    def __init__(self,right,n_cats=5,threshold=0.3):
+    def __init__(self,right,n_cats=3,threshold=0.3):
         self.right=right
         self.n_cats=n_cats
         self.threshold=threshold
@@ -68,7 +70,20 @@ def exp(ens,n_samples=1000):
     print(C)
     weights=find_weights(C)
     print(weights)
-     
+    voting(y_true,preds)
+    voting(y_true,preds,weights)
+
+def voting(y_true,preds,weights=None,n_cats=3):
+    if(weights is None):
+        preds=np.array([to_one_hot(pred_i,n_cats)
+             for pred_i in preds])
+    else:
+        preds=np.array([weights[i]*to_one_hot(pred_i,n_cats)
+             for i,pred_i in enumerate(preds)])	
+    result= np.sum(preds,axis=0)
+    final_pred=np.argmax(result,axis=0)
+    acc=accuracy_score(y_true,final_pred)
+    print(acc) 
 
 def to_one_hot(y,n_cats):
     hot=np.zeros((n_cats,len(y)))
@@ -76,5 +91,23 @@ def to_one_hot(y,n_cats):
         hot[y_i,i]=1
     return hot
 
+def plot_loss(ens,n_samples=1000): 
+    y_true,preds= ens(n_samples)
+    C=corl_error(y_true,preds)
+    def loss(weights):
+        weights=np.array(weights)
+        return np.dot(weights.T,np.dot(C,weights))
+    x = np.arange(-1.0, 1.0, 0.1)
+    y = np.arange(-1.0, 1.0, 0.1)
+    z=[[ loss([x_i,y_i,0])  
+         for x_i in x]
+            for y_i in y]
+    z=np.array(z)
+    fig, ax = plt.subplots()
+    CS = ax.contour(x, y, z)
+    ax.clabel(CS, inline=False, fontsize=10)
+    ax.set_title('Simplest default with labels')
+    plt.show()
+
 ens=MockEnsemble()
-exp(ens,n_samples=1000)
+plot_loss(ens,n_samples=1000)
