@@ -113,13 +113,25 @@ def majority_voting(votes):
         y_pred.append(np.bincount(votes_i).argmax()) 
     return y_true,y_pred
 
+def posistional_voting(votes,weights):
+    y_true,y_pred=[],[]
+    n_cats=len(weights)
+    for name_i,votes_i in votes.items():
+        y_true.append(name_i.get_cat())
+        counter= np.zeros((n_cats,))
+        for votes_ij in votes_i:
+            for t,cat_t in enumerate(votes_ij):
+                counter[cat_t]+=weights[t]
+        y_pred.append( np.argmax(counter))
+    return y_true,y_pred
+
 def base_exp(dataset):
     train,test=dataset.split()
     ensemble=get_simple_ensemble()
     votes=ensemble.get_votes(train,test)
     y_true,y_pred= majority_voting(votes)
+    y_true,y_pred=posistional_voting(votes,np.array([3,2,1]))
     print( classification_report(y_true,y_pred))
-
 
 X, y = load_iris(return_X_y=True)
 dataset=to_data_dict(X,y)
