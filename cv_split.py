@@ -4,6 +4,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import VotingClassifier
+from sklearn.metrics import classification_report
+from scipy.optimize import differential_evolution
 
 class Name(str):
     def __new__(cls, p_string):
@@ -61,6 +63,20 @@ class Ensemble(object):
                 votes_dict[name_j].append(vote_ij)
         return votes_dict
 
+#class OPV(object):
+#    def __init__(self,maxiter=10,init_type='latinhypercube',pop_size=15):
+#        self.maxiter=maxiter
+#        self.init_type=init_type
+#        self.pop_size=pop_size
+ 
+#    def __call__(self,loss_fun,n_cand):
+#        init=init_population(self.init_type,n_cand,self.pop_size)
+#        bound_w = [(0.0, n_cand)  for _ in range(n_cand)]
+#        result = differential_evolution(loss_fun, bound_w, 
+#            init=init,
+#            maxiter=self.maxiter, tol=1e-7)
+#        return result['x']
+
 def to_data_dict(X,y):
     dataset=DataDict()
     cats_size={}
@@ -68,7 +84,7 @@ def to_data_dict(X,y):
         if(not y_i in cats_size):
         	cats_size[y_i]=0
         cats_size[y_i]+=1
-        name_i=Name(f"{y_i-1}_{cats_size[y_i]}")
+        name_i=Name(f"{y_i+1}_{cats_size[y_i]}")
         dataset[name_i]=x_i
     return dataset
 
@@ -89,7 +105,23 @@ def cv_split(dataset,ensemble,n_split=5):
         all_votes={**all_votes ,**votes_i}
     return all_votes
 
+def majority_voting(votes):
+    y_true,y_pred=[],[]
+    for name_i,votes_i in votes.items():
+        y_true.append(name_i.get_cat())
+        votes_i=np.array(votes_i)[:,0].T
+        y_pred.append(np.bincount(votes_i).argmax()) 
+    return y_true,y_pred
+
+def base_exp(dataset):
+    train,test=dataset.split()
+    ensemble=get_simple_ensemble()
+    votes=ensemble.get_votes(train,test)
+    y_true,y_pred= majority_voting(votes)
+    print( classification_report(y_true,y_pred))
+
+
 X, y = load_iris(return_X_y=True)
 dataset=to_data_dict(X,y)
-ensemble=get_simple_ensemble()
-cv_split(dataset,ensemble)
+base_exp(dataset)
+#cv_split(dataset,ensemble)
