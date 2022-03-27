@@ -6,6 +6,8 @@ from sklearn.svm import SVC
 from sklearn.ensemble import VotingClassifier
 from sklearn.metrics import classification_report
 from scipy.optimize import differential_evolution
+from sklearn.metrics import roc_auc_score
+from sklearn.preprocessing import LabelBinarizer
 
 class Name(str):
     def __new__(cls, p_string):
@@ -47,6 +49,9 @@ class Ensemble(object):
     def __init__(self,algs):
         self.algs=algs
 
+    def __len__(self):
+        return len(self.algs)
+
     def train_clf(self,train):
         X_train,y_train,names=train.as_xy()
         return [alg_i.fit(X_train,y_train) 
@@ -62,20 +67,6 @@ class Ensemble(object):
                 vote_ij=np.flip(np.argsort(pred_i[j]))
                 votes_dict[name_j].append(vote_ij)
         return votes_dict
-
-#class OPV(object):
-#    def __init__(self,maxiter=10,init_type='latinhypercube',pop_size=15):
-#        self.maxiter=maxiter
-#        self.init_type=init_type
-#        self.pop_size=pop_size
- 
-#    def __call__(self,loss_fun,n_cand):
-#        init=init_population(self.init_type,n_cand,self.pop_size)
-#        bound_w = [(0.0, n_cand)  for _ in range(n_cand)]
-#        result = differential_evolution(loss_fun, bound_w, 
-#            init=init,
-#            maxiter=self.maxiter, tol=1e-7)
-#        return result['x']
 
 def to_data_dict(X,y):
     dataset=DataDict()
@@ -125,15 +116,40 @@ def posistional_voting(votes,weights):
         y_pred.append( np.argmax(counter))
     return y_true,y_pred
 
+def init_borda(size,n_cats):
+    popula=np.ones((size,n_cats))
+    for i in range(n_cats):
+        popula[:,i]=n_cats-i
+    return popula
+
 def base_exp(dataset):
     train,test=dataset.split()
     ensemble=get_simple_ensemble()
     votes=ensemble.get_votes(train,test)
     y_true,y_pred= majority_voting(votes)
-    y_true,y_pred=posistional_voting(votes,np.array([3,2,1]))
+    print( classification_report(y_true,y_pred))
+
+def opv_exp(dataset):
+    ensemble=get_simple_ensemble()
+    cv_votes=cv_split(dataset,ensemble,n_split=5)
+    def loss_fun(weights):
+        weights/=np.sum(weights)
+        y_true,y_pred=posistional_voting(cv_votes,weights)
+        y_true= LabelBinarizer().fit_transform(y_true)
+        y_pred= LabelBinarizer().fit_transform(y_pred)        
+        auc_ovo=roc_auc_score(y_true,y_pred,multi_class="ovo")
+        return -1.0*auc_ovo
+    bound_w = [(0.0, 1.0)  for _ in range(len(ensemble))]
+    weights= differential_evolution(loss_fun, bound_w, 
+                init=init_borda(30,len(ensemble)),
+                maxiter=1000, tol=1e-4)['x']
+    train,test=dataset.split()
+    votes=ensemble.get_votes(train,test)
+    y_true,y_pred= posistional_voting(votes,weights)
+    print(weights)    
     print( classification_report(y_true,y_pred))
 
 X, y = load_iris(return_X_y=True)
 dataset=to_data_dict(X,y)
 base_exp(dataset)
-#cv_split(dataset,ensemble)
+opv_exp(dataset)
