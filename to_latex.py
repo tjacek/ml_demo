@@ -1,5 +1,5 @@
 import pandas
-import os
+import os,re
 
 def to_latex(in_path,out_path):
     if(not os.path.isdir(out_path)):
@@ -27,6 +27,14 @@ def from_df(df_i):
     for index, row_j  in df_i.iterrows():
         latex+=helper(row_j)
     latex+=" \\hline \n \\end{tabular} "
+    print(latex)
     return latex
 
-to_latex("data","latex")
+def to_biblo(in_path):
+    ws = re.compile(r"\s+")
+    lines =[line_j
+       for line_j in open(in_path, "r").readlines()
+           if(not ws.match(line_j))]
+    print(lines)
+
+to_biblo("bib.txt")
