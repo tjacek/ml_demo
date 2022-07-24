@@ -8,4 +8,4 @@ def to_csv(in_path):
             line_i= ",".join(line_i.split("&"))
             print(line_i) 
 
-to_csv('raw')
+to_csv('tab2')

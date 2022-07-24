@@ -1,22 +1,36 @@
 import pandas
 import os,re
+from functools import wraps
 
-def to_latex(in_path,out_path):
-    if(os.path.isdir(in_path)):
-        if(not os.path.isdir(out_path)):
-            os.mkdir(out_path)
-        for path_i in os.listdir(in_path):
-            in_i=f"{in_path}/{path_i}"
-            out_i=f"{out_path}/{path_i}"
-            to_latex(in_i,out_i)
-    else:
+
+def dir_function(func):
+    @wraps(func)
+    def helper(in_path,out_path):
+        if(os.path.isdir(in_path)):
+            if(not os.path.isdir(out_path)):
+                os.mkdir(out_path)
+            for path_i in os.listdir(in_path):
+                in_i=f"{in_path}/{path_i}"
+                out_i=f"{out_path}/{path_i}"
+                func(in_i,out_i)
+        else:
+            func(in_path,out_path)
+
+def csv_function(func):
+    @wraps(func)
+    def helper(in_path,out_path):
         out_path=out_path.replace("csv","txt")
         df_i=pandas.read_csv(in_path)
-        file_i = open(out_path,'w')
-        file_i.write(from_df(df_i))
-        file_i.close()
+        result_i=func(df_i)
+        if(result_i):
+            file_i = open(out_path,'w')
+            file_i.write(result_i)
+            file_i.close()     
+        return result_i
+    return helper
 
-def from_df(df_i):
+#@csv_function
+def to_latex(df_i):
     lines=[]
     latex="\\begin{tabular}{|"
     for t in range(df_i.shape[1]):
@@ -40,4 +54,13 @@ def to_biblo(in_path):
            if(not ws.match(line_j))]
     print(lines)
 
-to_latex("tab.csv","tab.latex")
+@csv_function
+def acc(df):
+    base=df['raw']
+    voting=['borda', 'opv_acc', 'opv_auc', 'opv_f1']
+    for vote_i in voting:
+        df[vote_i]+=base
+        df[vote_i]=df[vote_i].round(decimals=4) 
+    return to_latex(df)
+
+acc("tab2.csv","tab2.latex")
