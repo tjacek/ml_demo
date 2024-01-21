@@ -2,15 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def make_plot(fun=None,n_frames=30,
-	  title='Proposed distribution'):
+	  title='Proponowany rozkład praw'):
     x=np.arange(n_frames)
     if(fun is None):
         y=x
     else:
     	y=fun(x)
     plt.bar(x, y) #color ='maroon',width = 0.4)
-    plt.xlabel("Frames")
-    plt.ylabel("Probability")
+    plt.xlabel("Ramka")
+    plt.ylabel("Prawdopodobieństwo wylosowania ramki")
     plt.title(title)
     plt.show()
 
@@ -32,6 +32,6 @@ class Normal(object):
         x= [np.exp(fun(x_i)) for x_i in x]
         return x/np.sum(x)
 
-make_plot(proposed)
-make_plot(Normal(sigma=3),title='Normal distribution (mean=15,sigma=3)')
-make_plot(Normal(sigma=10),title='Normal distribution (mean=15,sigma=10)')
+make_plot(proposed,title='Proponowany rozkład prawdopodobieństwa')
+make_plot(Normal(sigma=3), title='Rozkład normalny (średnia=15,wariancja=3)')
+make_plot(Normal(sigma=10),title='Rozkład normalny (średnia=15,wariancja=10)')
