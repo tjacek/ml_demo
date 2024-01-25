@@ -12,6 +12,8 @@ def make_plot(fun=None,n_frames=30,title='dist',outpath=None):
     plt.xlabel("Mapa głębi")
     plt.ylabel("Prawdopodobieństwo wylosowania \n mapy głębi")
     plt.title(title)
+    fig = plt.gcf()
+    fig.set_size_inches(7.5, 3.5)
     plt.tight_layout()
     if(outpath):
         plt.savefig(outpath)
