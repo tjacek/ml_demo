@@ -21,21 +21,35 @@ class Series(object):
 
 class Variable(object):
     def __init__(self,params:Parameters,
-    	              series:Series):
+    	              series:Series,
+    	              name:str):
         self.params=params
         self.series=series
+        self.name=name
+
+    def x_value(self):
+    	return self.series.y
 
 class IS(Variable):
     def __call__(self):
     	 value=  self.params.c*(1 - self.params.t)
     	 value= (self.params.A - self.series.y*value)/self.params.b        
-#    	 raise Exception(value.shape)
     	 return value
 
 class LM(Variable):
-
     def __call__(self):
         return (1/self.params.h)*(self.params.k* self.series.y - self.params.Ms/self.params.P)
+
+class AD(Variable):
+    def __call__(self):
+       value=(self.series.y*(1- self.params.c*(1-self.params.t)+self.params.b/self.params.h*self.params.k) - self.params.A)
+       value= self.params.b/self.params.h*self.params.Ms/value 
+       return value	
+
+class AE(Variable):
+    def __call__(self):
+
+       return self.params.A+self.params.c	
 
 def MD():
     M = np.arange(0, 50000)
@@ -48,10 +62,12 @@ def show_curves(curves,x_label='Y',y_label='i'):
     fig, ax = plt.subplots()
     
     for curve_i in curves:
-        plt.plot(curve_i.series.y,curve_i()) #,label="lsm")
+        plt.plot(curve_i.x_value(),
+        	     curve_i(),
+        	     label=curve_i.name)
     plt.xlabel(x_label,fontsize=15) 
     plt.ylabel(y_label,fontsize=15) 
-#    plt.legend()
+    plt.legend()
     plt.tight_layout()
     plt.show()
 
@@ -59,9 +75,20 @@ def show_curves(curves,x_label='Y',y_label='i'):
 params=Parameters()
 series=Series()
 
-is_curve=IS(params=params,series=series)
-lm_curve=LM(params=params,series=series)
+is_curve=IS(params=params,
+	        series=series,
+	        name="IS")
+lm_curve=LM(params=params,
+	        series=series,
+	        name="LM")
 
 show_curves(curves=[is_curve,lm_curve],
 	        x_label='Y',
 	        y_label='i')
+
+ad=AD(params=params,
+	  series=series,
+	  name="AD")
+show_curves(curves=[ad,],
+	        x_label='Y',
+	        y_label='AD')
