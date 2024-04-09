@@ -46,17 +46,56 @@ class AD(Variable):
        value= self.params.b/self.params.h*self.params.Ms/value 
        return value	
 
-class AE(Variable):
+class Y_EQ(Variable):
+    def __init__(self,params:Parameters,
+    	              series:Series):
+        super().__init__(params=params,
+    	                 series=series,
+    	                 name="Y_EQ")
+        self.is_curve=IS(params=params,
+    	                 series=series,
+    	                 name="IS")
+        self.lm_curve=LM(params=params,
+    	                 series=series,
+    	                 name="LM")
     def __call__(self):
+        diff=np.diff(np.sign(self.is_curve() - self.lm_curve()))
+        return np.argwhere(diff).flatten()
 
-       return self.params.A+self.params.c	
+class I_EQ(Variable):
+    def __init__(self,params:Parameters,
+    	              series:Series):
+        super().__init__(params=params,
+    	                 series=series,
+    	                 name="I_EQ")
+        self.y_eq=IS(params=params,
+    	             series=series,
+    	             name="I_EQ")
+
+    def __call__(self):
+        return (1/self.params.h)*(self.params.k* self.y_eq() - self.params.Ms/self.params.P)
+
+class AE(Variable):
+    def __init__(self,params:Parameters,
+    	              series:Series):
+        super().__init__(params=params,
+    	                 series=series,
+    	                 name="AE")
+        self.i_eq=I_EQ(params=params,
+    	               series=series)   
+
+    def __call__(self):
+       value=self.params.A
+       value+=self.params.c*(1-self.params.t)*self.series.y
+       value-= self.params.b*self.i_eq() 
+       return value
+
+# A + c*(1-t)*y - b*i_eq()
 
 def MD():
     M = np.arange(0, 50000)
     return (1/h)*(k*y_eq() - M)
 
-def y_eq():
-    return np.argwhere(np.diff(np.sign(IS() - LM()))).flatten()
 
 def show_curves(curves,x_label='Y',y_label='i'):
     fig, ax = plt.subplots()
@@ -86,9 +125,8 @@ show_curves(curves=[is_curve,lm_curve],
 	        x_label='Y',
 	        y_label='i')
 
-ad=AD(params=params,
-	  series=series,
-	  name="AD")
-show_curves(curves=[ad,],
+ad=AE(params=params,
+	  series=series)
+show_curves(curves=[ad],
 	        x_label='Y',
 	        y_label='AD')
