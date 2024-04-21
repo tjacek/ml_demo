@@ -15,6 +15,9 @@ class LinearFunction(object):
     def __call__(self,p:float):
         return self.b + self.a*p
 
+    def diff(self,p):
+        return self.a
+
     def show(self,n=100,step=2):
         fig, ax = plt.subplots()
         x = np.arange(0, n,step=step)
@@ -58,4 +61,5 @@ def inter(start=-10,end=30,step=1):
     plt.ylabel("X",fontsize=15) 
     plt.show()
 
-inter()
+if __name__ == '__main__':
+    inter()
