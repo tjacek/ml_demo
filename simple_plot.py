@@ -13,9 +13,11 @@ def show_plot(x,ts):
 
 def plot_dir(x,ts,out_path):
     if(not os.path.isdir(out_path)):
-        os.mkdir(path)
+        os.mkdir(out_path)
+    colors=['red','orange','blue','green']
+    plt.figure(figsize=(10,3))
     for i,ts_i in enumerate(ts):
-        plt.plot(x, ts_i)
+        plt.plot(x, ts_i,color=colors[i% len(colors)] ) 
         plt.savefig(f'{out_path}/{i}.png')
         plt.clf()
 
@@ -37,8 +39,5 @@ def fun2(x):
 
 
 x=np.arange(100,step=1)
-y1=x
-y2=fun1(x)
-y3=fun2(x)
-y4=np.log(x)
-plot_dir(x,[y1,y2,y3,y4],"test")
+y=[x,fun1(x),fun2(x),np.log(x),np.sin(x)]
+plot_dir(x,y,"test")
